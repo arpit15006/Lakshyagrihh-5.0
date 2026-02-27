@@ -5,7 +5,7 @@ import type {
     MonthlyFinancial, FuelEfficiencyEntry,
 } from '../types/models';
 
-import { collection, doc, addDoc, updateDoc, onSnapshot, getDocs } from 'firebase/firestore';
+import { collection, doc, addDoc, updateDoc, deleteDoc, onSnapshot, getDocs } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 
 // ── Store Interface ───────────────────────────────────────────
@@ -32,7 +32,9 @@ interface FleetStore {
     removeToast: (id: string) => void;
 
     // Vehicle actions
+    addVehicle: (vehicle: Omit<Vehicle, 'id'>) => void;
     updateVehicleStatus: (vehicleId: string, status: VehicleStatus) => void;
+    deleteVehicle: (vehicleId: string) => void;
 
     // Service Log actions
     addServiceLog: (log: Omit<ServiceLog, 'id'>) => void;
@@ -69,10 +71,26 @@ export const useFleetStore = create<FleetStore>((set, get) => ({
     removeToast: (id) => set((s) => ({ toasts: s.toasts.filter((t) => t.id !== id) })),
 
     // Vehicles
+    addVehicle: async (vehicle) => {
+        try {
+            await addDoc(collection(db, 'vehicles'), vehicle);
+            get().addToast({ title: 'Vehicle added', description: `${vehicle.plate} registered successfully`, variant: 'success' });
+        } catch (e) {
+            console.error(e);
+        }
+    },
     updateVehicleStatus: async (vehicleId, status) => {
         try {
             await updateDoc(doc(db, 'vehicles', vehicleId), { status });
             get().addToast({ title: 'Vehicle status updated', description: `Status changed to ${status}`, variant: 'success' });
+        } catch (e) {
+            console.error(e);
+        }
+    },
+    deleteVehicle: async (vehicleId) => {
+        try {
+            await deleteDoc(doc(db, 'vehicles', vehicleId));
+            get().addToast({ title: 'Vehicle removed', description: `Vehicle deleted successfully`, variant: 'success' });
         } catch (e) {
             console.error(e);
         }
