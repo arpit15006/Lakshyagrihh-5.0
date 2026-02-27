@@ -3,27 +3,32 @@ import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { useFleetStore } from '../store/useFleetStore';
 
 import { Car, AlertTriangle, Activity, Package, Plus } from 'lucide-react';
 
-const KPI_DATA = [
-    { title: "Active Fleet", value: "220", trend: { value: 12, isPositive: true }, icon: Car, valueColor: "text-blue-600" },
-    { title: "Maintenance Alerts", value: "15", trend: { value: 2, isPositive: false }, icon: AlertTriangle, valueColor: "text-red-500" },
-    { title: "Utilization Rate", value: "75%", trend: { value: 5, isPositive: true }, icon: Activity, valueColor: "text-green-600" },
-    { title: "Pending Cargo", value: "20", trend: { value: 8, isPositive: true }, icon: Package, valueColor: "text-amber-600" }
-];
-
-const RECENT_TRIPS = [
-    { trip: "TRP-001", vehicle: "Truck-01", driver: "John Doe", status: "On Trip" },
-    { trip: "TRP-002", vehicle: "Van-02", driver: "Alex", status: "Idle" },
-    { trip: "TRP-003", vehicle: "Truck-03", driver: "Rahul", status: "On Trip" },
-    { trip: "TRP-004", vehicle: "Mini-01", driver: "Amit", status: "Idle" },
-    { trip: "TRP-005", vehicle: "Trailer-02", driver: "Karan", status: "On Trip" },
-    { trip: "TRP-006", vehicle: "Van-05", driver: "Suresh", status: "Idle" }
-];
-
 export function DashboardPage() {
     const navigate = useNavigate();
+    const { vehicles, serviceLogs, trips } = useFleetStore();
+
+    const activeFleet = vehicles.filter(v => v.status === 'On Trip' || v.status === 'Available').length;
+    const maintenanceAlerts = serviceLogs.filter(l => l.status !== 'Completed').length;
+    const utilizationRate = vehicles.length > 0 ? Math.round((vehicles.filter(v => v.status === 'On Trip').length / vehicles.length) * 100) : 0;
+    const pendingTrips = trips.filter(t => t.status === 'Preparing').length;
+
+    const KPI_DATA = [
+        { title: "Active Fleet", value: activeFleet.toString(), trend: { value: 12, isPositive: true }, icon: Car, valueColor: "text-blue-600" },
+        { title: "Maintenance Alerts", value: maintenanceAlerts.toString(), trend: { value: 2, isPositive: false }, icon: AlertTriangle, valueColor: "text-red-500" },
+        { title: "Utilization Rate", value: `${utilizationRate}%`, trend: { value: 5, isPositive: true }, icon: Activity, valueColor: "text-green-600" },
+        { title: "Pending Cargo", value: pendingTrips.toString(), trend: { value: 8, isPositive: true }, icon: Package, valueColor: "text-amber-600" }
+    ];
+
+    const RECENT_TRIPS = trips.slice(-6).map(t => ({
+        trip: t.id.slice(0, 8),
+        vehicle: vehicles.find(v => v.id === t.vehicleId)?.plate || 'Unknown',
+        driver: t.driverId,
+        status: t.status
+    }));
 
     return (
         <motion.div
@@ -91,7 +96,7 @@ export function DashboardPage() {
                                     <TableCell className="text-muted-foreground px-6 py-3 text-sm">{trip.driver}</TableCell>
                                     <TableCell className="px-6 py-3">
                                         <span
-                                            className={`rounded-full px-2 py-0.5 text-xs font-medium ${trip.status === "On Trip"
+                                            className={`rounded-full px-2 py-0.5 text-xs font-medium ${trip.status === "On Way"
                                                 ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
                                                 : "bg-muted text-muted-foreground"
                                                 }`}
