@@ -7,7 +7,6 @@ import { Label } from '../components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { motion } from 'framer-motion';
 import { MapPin } from 'lucide-react';
-import type { UserRole } from '../constants/auth';
 
 const INITIAL_TRIPS = [
     { id: 1, type: "Trailer Truck", origin: "Mumbai", destination: "Delhi", status: "On Way" },
@@ -27,10 +26,6 @@ const MOCK_DRIVERS = [
 ];
 
 export function TripDispatcherPage() {
-    const userString = localStorage.getItem('user');
-    const user = userString ? JSON.parse(userString) : { role: 'guest' };
-    const role = user.role as UserRole;
-
     const [trips, setTrips] = useState(INITIAL_TRIPS);
 
     // Form state
@@ -71,8 +66,6 @@ export function TripDispatcherPage() {
 
     const selectedVehicle = MOCK_VEHICLES.find(v => v.id === vehicleId);
     const isOverweight = selectedVehicle && weight && parseFloat(weight) > selectedVehicle.capacityKg;
-
-    const canSchedule = role !== 'safety_officer';
 
     return (
         <motion.div
@@ -126,14 +119,13 @@ export function TripDispatcherPage() {
                 </div>
             </Card>
 
-            {canSchedule ? (
-                <Card className="p-6 rounded-xl border border-border bg-card mt-4 relative overflow-hidden group">
-                    <div className="absolute top-0 left-0 w-1 h-full bg-primary"></div>
-                    <div>
-                        <h2 className="text-lg font-semibold tracking-tight text-foreground flex items-center gap-2">
-                            <MapPin className="w-5 h-5" /> Schedule New Trip
-                        </h2>
-                    </div>
+            <Card className="p-6 rounded-xl border border-border bg-card mt-4 relative overflow-hidden group">
+                <div className="absolute top-0 left-0 w-1 h-full bg-primary"></div>
+                <div>
+                    <h2 className="text-lg font-semibold tracking-tight text-foreground flex items-center gap-2">
+                        <MapPin className="w-5 h-5" /> Schedule New Trip
+                    </h2>
+                </div>
                     <div className="border-t border-border my-4"></div>
                     <form onSubmit={handleDispatch} className="space-y-4">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -194,15 +186,6 @@ export function TripDispatcherPage() {
                         </div>
                     </form>
                 </Card>
-            ) : (
-                <Card className="p-12 rounded-xl border border-dashed border-border bg-card flex flex-col items-center justify-center text-center mt-4">
-                    <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center mb-4 text-muted-foreground">
-                        <MapPin className="w-6 h-6" />
-                    </div>
-                    <h3 className="text-base font-medium text-foreground">Trip Scheduling Restricted</h3>
-                    <p className="text-sm text-muted-foreground max-w-xs mt-1">Operational actions are restricted for your current role ({role}). Contact a manager for access.</p>
-                </Card>
-            )}
         </motion.div>
     );
 }

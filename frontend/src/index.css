@@ -140,3 +140,6 @@
 .rotate-y-180 {
   transform: rotateY(180deg);
 }
+
+/* Leaflet Map Styles */
+@import 'leaflet/dist/leaflet.css';

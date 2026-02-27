@@ -13,6 +13,9 @@ const MaintenancePage = lazy(() => import('./pages/maintenance/MaintenancePage')
 const ExpensesPage = lazy(() => import('./pages/expenses/ExpensesPage').then(m => ({ default: m.ExpensesPage })));
 const DriversPage = lazy(() => import('./pages/drivers/DriversPage').then(m => ({ default: m.DriversPage })));
 const AnalyticsPage = lazy(() => import('./pages/analytics/AnalyticsPage').then(m => ({ default: m.AnalyticsPage })));
+const CarbonDashboardPage = lazy(() => import('./pages/carbon/CarbonDashboardPage').then(m => ({ default: m.CarbonDashboardPage })));
+const RouteOptimizationPage = lazy(() => import('./pages/route-optimization/RouteOptimizationPage').then(m => ({ default: m.RouteOptimizationPage })));
+const LiveTrackingPage = lazy(() => import('./pages/live-tracking/LiveTrackingPage').then(m => ({ default: m.LiveTrackingPage })));
 
 function LazyPage({ children }: { children: React.ReactNode }) {
   return (
@@ -46,6 +49,9 @@ function App() {
               <Route path="/expenses" element={<LazyPage><ExpensesPage /></LazyPage>} />
               <Route path="/drivers" element={<LazyPage><DriversPage /></LazyPage>} />
               <Route path="/analytics" element={<LazyPage><AnalyticsPage /></LazyPage>} />
+              <Route path="/carbon" element={<LazyPage><CarbonDashboardPage /></LazyPage>} />
+              <Route path="/route-optimization" element={<LazyPage><RouteOptimizationPage /></LazyPage>} />
+              <Route path="/live-tracking" element={<LazyPage><LiveTrackingPage /></LazyPage>} />
             </Route>
           </Route>
 

@@ -29,7 +29,7 @@ interface TabsListProps {
 
 export function TabsList({ children, className = "", activeValue, onValueChange }: TabsListProps) {
     return (
-        <div className={`inline-flex items-center gap-1 rounded-xl bg-zinc-800/60 p-1 ${className}`}>
+        <div className={`inline-flex items-center gap-1 rounded-xl bg-muted p-1 ${className}`}>
             {React.Children.map(children, (child) => {
                 if (React.isValidElement(child)) {
                     return React.cloneElement(child as React.ReactElement<any>, { activeValue, onValueChange });
@@ -54,8 +54,8 @@ export function TabsTrigger({ value, children, className = "", activeValue, onVa
         <button
             onClick={() => onValueChange?.(value)}
             className={`inline-flex items-center justify-center px-3 py-1.5 text-sm font-medium rounded-lg transition-all duration-150 ${isActive
-                ? 'bg-zinc-700 text-zinc-100 shadow-sm'
-                : 'text-zinc-400 hover:text-zinc-200'
+                ? 'bg-background text-foreground shadow-sm'
+                : 'text-muted-foreground hover:text-foreground'
                 } ${className}`}
         >
             {children}

@@ -8,7 +8,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../components/ui/dropdown-menu';
 import { motion } from 'framer-motion';
 import { MoreHorizontal } from 'lucide-react';
-import type { UserRole } from '../constants/auth';
 
 const INITIAL_VEHICLES = [
     { id: 1, plate: "MH00AB1234", model: "Mini", type: "Truck", capacity: "5 ton", odometer: "70,000 km", status: "Idle" },
@@ -20,10 +19,6 @@ const INITIAL_VEHICLES = [
 ];
 
 export function VehicleRegistryPage() {
-    const userString = localStorage.getItem('user');
-    const user = userString ? JSON.parse(userString) : { role: 'guest' };
-    const role = user.role as UserRole;
-
     const [vehicles, setVehicles] = useState(INITIAL_VEHICLES);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingId, setEditingId] = useState<number | null>(null);
@@ -91,9 +86,7 @@ export function VehicleRegistryPage() {
                     <p className="text-sm text-muted-foreground">Manage your active fleet and asset details.</p>
                 </div>
                 <div className="flex gap-3">
-                    {role === 'manager' && (
-                        <Button onClick={openModalNew} className="rounded-lg h-8 px-3 py-1.5 text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 transition-all duration-200 shadow-sm">+ New Vehicle</Button>
-                    )}
+                    <Button onClick={openModalNew} className="rounded-lg h-8 px-3 py-1.5 text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 transition-all duration-200 shadow-sm">+ New Vehicle</Button>
                 </div>
             </div>
 
@@ -132,19 +125,17 @@ export function VehicleRegistryPage() {
                                         </span>
                                     </TableCell>
                                     <TableCell className="px-6 py-3">
-                                        {role === 'manager' && (
-                                            <DropdownMenu>
-                                                <DropdownMenuTrigger asChild>
-                                                    <button className="p-2 hover:bg-muted rounded-md transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-ring">
-                                                        <MoreHorizontal className="w-4 h-4 text-muted-foreground" />
-                                                    </button>
-                                                </DropdownMenuTrigger>
-                                                <DropdownMenuContent align="end" className="w-32 rounded-lg shadow-md border border-border bg-popover text-popover-foreground">
-                                                    <DropdownMenuItem onClick={() => handleEditVehicle(v)} className="hover:bg-muted cursor-pointer transition-colors text-sm rounded-md px-2 py-1.5 focus:bg-muted m-1">Edit</DropdownMenuItem>
-                                                    <DropdownMenuItem onClick={() => handleDeleteVehicle(v.id)} className="text-destructive hover:bg-destructive/10 hover:text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer transition-colors text-sm rounded-md px-2 py-1.5 m-1">Delete</DropdownMenuItem>
-                                                </DropdownMenuContent>
-                                            </DropdownMenu>
-                                        )}
+                                        <DropdownMenu>
+                                            <DropdownMenuTrigger asChild>
+                                                <button className="p-2 hover:bg-muted rounded-md transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-ring">
+                                                    <MoreHorizontal className="w-4 h-4 text-muted-foreground" />
+                                                </button>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent align="end" className="w-32 rounded-lg shadow-md border border-border bg-popover text-popover-foreground">
+                                                <DropdownMenuItem onClick={() => handleEditVehicle(v)} className="hover:bg-muted cursor-pointer transition-colors text-sm rounded-md px-2 py-1.5 focus:bg-muted m-1">Edit</DropdownMenuItem>
+                                                <DropdownMenuItem onClick={() => handleDeleteVehicle(v.id)} className="text-destructive hover:bg-destructive/10 hover:text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer transition-colors text-sm rounded-md px-2 py-1.5 m-1">Delete</DropdownMenuItem>
+                                            </DropdownMenuContent>
+                                        </DropdownMenu>
                                     </TableCell>
                                 </TableRow>
                             ))}
@@ -161,11 +152,11 @@ export function VehicleRegistryPage() {
             </div>
 
             <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-                <DialogHeader>
-                    <DialogTitle>{editingId ? "Edit Vehicle" : "Register New Vehicle"}</DialogTitle>
-                </DialogHeader>
-                <form onSubmit={handleSaveVehicle}>
-                    <DialogContent className="space-y-4">
+                <DialogContent className="space-y-4">
+                    <DialogHeader>
+                        <DialogTitle>{editingId ? "Edit Vehicle" : "Register New Vehicle"}</DialogTitle>
+                    </DialogHeader>
+                    <form onSubmit={handleSaveVehicle}>
                         <div className="space-y-2">
                             <Label className="text-sm font-medium">License Plate</Label>
                             <Input required placeholder="Ex: ABC-1234" className="h-10 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 rounded-lg border-border" value={plate} onChange={e => setPlate(e.target.value)} />
@@ -201,12 +192,12 @@ export function VehicleRegistryPage() {
                                 <Input type="number" required placeholder="0" className="h-10 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 rounded-lg border-border" value={odometer} onChange={e => setOdometer(e.target.value)} />
                             </div>
                         </div>
-                    </DialogContent>
-                    <DialogFooter>
-                        <Button type="button" variant="outline" className="rounded-lg h-10 font-medium focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 border-border hover:bg-muted" onClick={() => setIsModalOpen(false)}>Cancel</Button>
-                        <Button type="submit" className="rounded-lg h-10 font-medium bg-primary text-primary-foreground hover:bg-primary/90 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 transition-all">Save Vehicle</Button>
-                    </DialogFooter>
-                </form>
+                        <DialogFooter>
+                            <Button type="button" variant="outline" className="rounded-lg h-10 font-medium focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 border-border hover:bg-muted" onClick={() => setIsModalOpen(false)}>Cancel</Button>
+                            <Button type="submit" className="rounded-lg h-10 font-medium bg-primary text-primary-foreground hover:bg-primary/90 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 transition-all">Save Vehicle</Button>
+                        </DialogFooter>
+                    </form>
+                </DialogContent>
             </Dialog>
         </motion.div>
     );

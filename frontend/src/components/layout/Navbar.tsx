@@ -36,10 +36,9 @@ export function Navbar() {
                     <button className="h-9 px-3 text-sm font-medium text-muted-foreground bg-background border border-border rounded-lg hover:border-border hover:bg-muted hover:text-foreground transition-all shadow-sm focus:outline-none focus:ring-1 focus:ring-ring">
                         Filter
                     </button>
-                    <div className="ml-2 border-l border-border pl-4">
-                        <ThemeToggle />
-                    </div>
                 </div>
+                
+                <ThemeToggle />
 
                 <div className="flex items-center pl-6 border-l border-border ml-2">
                     {!user ? (
