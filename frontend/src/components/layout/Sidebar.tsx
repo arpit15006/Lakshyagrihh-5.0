@@ -15,6 +15,7 @@ import {
     Route,
     Navigation
 } from 'lucide-react';
+import { useAuth } from '../../contexts/AuthContext';
 
 const navItems = [
     { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
@@ -41,8 +42,8 @@ export function Sidebar() {
         if (!isCollapsed) setIsCollapsed(true);
     };
 
-    const userString = localStorage.getItem('user');
-    const user = userString ? JSON.parse(userString) : { email: 'guest' };
+    const { user } = useAuth();
+    const displayUser = user ? { name: user.displayName || user.email?.split('@')[0], email: user.email } : { name: 'Guest', email: 'guest' };
 
     const allowedNavItems = navItems;
 
@@ -96,7 +97,7 @@ export function Sidebar() {
                         <User className="w-4 h-4" />
                     </div>
                     <div className={`flex flex-col transition-all duration-300 ${isExpanded ? 'opacity-100 w-auto' : 'opacity-0 w-0'}`}>
-                        <span className="text-sm font-medium text-gray-900 truncate">{user.name || user.email?.split('@')[0]}</span>
+                        <span className="text-sm font-medium text-gray-900 truncate">{displayUser.name}</span>
                         <span className="text-xs text-gray-500">User</span>
                     </div>
                 </div>

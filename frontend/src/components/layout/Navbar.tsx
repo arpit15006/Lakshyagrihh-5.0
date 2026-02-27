@@ -3,17 +3,16 @@ import { LogOut, User } from 'lucide-react';
 import { Button } from '../ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '../ui/dropdown-menu';
 import { ThemeToggle } from '../ThemeToggle';
+import { useAuth } from '../../contexts/AuthContext';
 
 export function Navbar() {
     const navigate = useNavigate();
+    const { user, logout } = useAuth();
 
-    const handleLogout = () => {
-        localStorage.removeItem('user');
+    const handleLogout = async () => {
+        await logout();
         navigate('/login');
     };
-
-    const userString = localStorage.getItem('user');
-    const user = userString ? JSON.parse(userString) : null;
 
     return (
         <header className="h-16 bg-background border-b border-border flex items-center justify-between px-6 shrink-0 z-10 sticky top-0 transition-colors duration-300">
@@ -37,7 +36,7 @@ export function Navbar() {
                         Filter
                     </button>
                 </div>
-                
+
                 <ThemeToggle />
 
                 <div className="flex items-center pl-6 border-l border-border ml-2">
@@ -54,7 +53,7 @@ export function Navbar() {
                                 <button className="flex items-center gap-3 focus:outline-none rounded-lg p-1 hover:bg-muted transition-colors focus-visible:ring-2 focus-visible:ring-ring">
                                     <div className="flex flex-col text-right hidden lg:flex">
                                         <span className="text-sm font-medium text-foreground leading-none">{user?.email?.split('@')[0] || 'User'}</span>
-                                        <span className="text-xs text-muted-foreground mt-1">{user?.role || 'Guest'}</span>
+                                        <span className="text-xs text-muted-foreground mt-1">Admin</span>
                                     </div>
                                     <div className="w-8 h-8 rounded-full bg-muted border border-border flex items-center justify-center text-muted-foreground">
                                         <User className="w-4 h-4" />
@@ -65,7 +64,7 @@ export function Navbar() {
                                 <div className="flex flex-col space-y-1 p-2 px-3">
                                     <p className="text-sm font-medium leading-none text-foreground">{user?.email?.split('@')[0] || 'User'}</p>
                                     <p className="text-xs leading-none text-muted-foreground mt-1">{user?.email || ''}</p>
-                                    <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/70 mt-2">{user?.role || 'Guest'}</p>
+                                    <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/70 mt-2">Admin</p>
                                 </div>
                                 <DropdownMenuSeparator className="bg-border" />
                                 <DropdownMenuItem

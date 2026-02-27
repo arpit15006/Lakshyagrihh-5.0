@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
@@ -9,6 +9,9 @@ import { PageHeader } from '../../components/shared/PageHeader';
 import { Table, TableBody, TableCell, TableRow } from '../../components/ui/table';
 import { MapPin, Navigation, Truck, Clock } from 'lucide-react';
 import type { LiveVehicle } from '../../types/carbon';
+import { ref, onValue, off } from 'firebase/database';
+import { rtdb } from '../../lib/firebase';
+import { useFleetStore } from '../../store/useFleetStore';
 
 // Fix Leaflet default marker icon
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -18,33 +21,47 @@ L.Icon.Default.mergeOptions({
     shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 });
 
-const LIVE_VEHICLES: LiveVehicle[] = [
-    { id: 'v1', plate: 'MH-01-AB-1234', lat: 19.0760, lng: 72.8777, status: 'Moving', speed: 65, destination: 'Delhi', eta: '22:30' },
-    { id: 'v2', plate: 'DL-01-YZ-5678', lat: 28.7041, lng: 77.1025, status: 'Idle', speed: 0, destination: 'Jaipur', eta: '18:45' },
-    { id: 'v3', plate: 'KA-05-CD-9012', lat: 12.9716, lng: 77.5946, status: 'Moving', speed: 72, destination: 'Chennai', eta: '20:15' },
-    { id: 'v4', plate: 'TN-07-GH-7890', lat: 13.0827, lng: 80.2707, status: 'Stopped', speed: 0, destination: 'Bangalore', eta: '23:00' },
-    { id: 'v5', plate: 'GJ-03-EF-3456', lat: 23.0225, lng: 72.5714, status: 'Moving', speed: 58, destination: 'Mumbai', eta: '19:30' },
-];
-
 export function LiveTrackingPage() {
-    const [vehicles, setVehicles] = useState(LIVE_VEHICLES);
-    const [selectedVehicle, setSelectedVehicle] = useState<LiveVehicle | null>(null);
+    const { vehicles } = useFleetStore();
+    const [liveData, setLiveData] = useState<Record<string, Partial<LiveVehicle>>>({});
+    const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
 
     useEffect(() => {
-        const interval = setInterval(() => {
-            setVehicles(prev => prev.map(v => ({
-                ...v,
-                lat: v.status === 'Moving' ? v.lat + (Math.random() - 0.5) * 0.01 : v.lat,
-                lng: v.status === 'Moving' ? v.lng + (Math.random() - 0.5) * 0.01 : v.lng,
-                speed: v.status === 'Moving' ? Math.max(45, Math.min(80, v.speed + (Math.random() - 0.5) * 10)) : 0,
-            })));
-        }, 3000);
-        return () => clearInterval(interval);
+        const liveTrackingRef = ref(rtdb, 'liveTracking');
+
+        const listener = onValue(liveTrackingRef, (snapshot) => {
+            if (snapshot.exists()) {
+                setLiveData(snapshot.val());
+            } else {
+                setLiveData({});
+            }
+        });
+
+        return () => off(liveTrackingRef, 'value', listener);
     }, []);
 
-    const movingVehicles = vehicles.filter(v => v.status === 'Moving').length;
-    const idleVehicles = vehicles.filter(v => v.status === 'Idle').length;
-    const avgSpeed = vehicles.filter(v => v.status === 'Moving').reduce((sum, v) => sum + v.speed, 0) / movingVehicles || 0;
+    const activeVehicles = useMemo(() => {
+        return vehicles.map(v => {
+            const live = liveData[v.id] || {};
+            // Default center of India if no GPS data
+            return {
+                id: v.id,
+                plate: v.plate,
+                status: live.status || (v.status === 'On Trip' ? 'Moving' : 'Idle'),
+                lat: live.lat || 20.5937 + (Math.random() - 0.5) * 5,
+                lng: live.lng || 78.9629 + (Math.random() - 0.5) * 5,
+                speed: live.speed || 0,
+                destination: live.destination || 'N/A',
+                eta: live.eta || 'N/A'
+            } as LiveVehicle;
+        });
+    }, [vehicles, liveData]);
+
+    const selectedVehicle = useMemo(() => activeVehicles.find(v => v.id === selectedVehicleId) || null, [activeVehicles, selectedVehicleId]);
+
+    const movingVehicles = activeVehicles.filter(v => v.status === 'Moving').length;
+    const idleVehicles = activeVehicles.filter(v => v.status === 'Idle').length;
+    const avgSpeed = activeVehicles.filter(v => v.status === 'Moving').reduce((sum, v) => sum + v.speed, 0) / (movingVehicles || 1);
 
     return (
         <motion.div
@@ -78,12 +95,12 @@ export function LiveTrackingPage() {
                                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
                                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                             />
-                            {vehicles.map((vehicle) => (
+                            {activeVehicles.map((vehicle) => (
                                 <Marker
                                     key={vehicle.id}
                                     position={[vehicle.lat, vehicle.lng]}
                                     eventHandlers={{
-                                        click: () => setSelectedVehicle(vehicle),
+                                        click: () => setSelectedVehicleId(vehicle.id),
                                     }}
                                 >
                                     <Popup>
@@ -123,11 +140,11 @@ export function LiveTrackingPage() {
                     <div className="overflow-y-auto max-h-96">
                         <Table>
                             <TableBody>
-                                {vehicles.map((vehicle) => (
+                                {activeVehicles.map((vehicle) => (
                                     <TableRow
                                         key={vehicle.id}
                                         className="border-b border-border hover:bg-muted/50 transition-colors cursor-pointer"
-                                        onClick={() => setSelectedVehicle(vehicle)}
+                                        onClick={() => setSelectedVehicleId(vehicle.id)}
                                     >
                                         <TableCell className="px-6 py-3">
                                             <div className="space-y-1">

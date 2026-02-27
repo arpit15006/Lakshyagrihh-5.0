@@ -17,6 +17,8 @@ const CarbonDashboardPage = lazy(() => import('./pages/carbon/CarbonDashboardPag
 const RouteOptimizationPage = lazy(() => import('./pages/route-optimization/RouteOptimizationPage').then(m => ({ default: m.RouteOptimizationPage })));
 const LiveTrackingPage = lazy(() => import('./pages/live-tracking/LiveTrackingPage').then(m => ({ default: m.LiveTrackingPage })));
 
+import { AuthProvider } from './contexts/AuthContext';
+
 function LazyPage({ children }: { children: React.ReactNode }) {
   return (
     <Suspense fallback={
@@ -32,32 +34,34 @@ function LazyPage({ children }: { children: React.ReactNode }) {
 function App() {
   return (
     <ThemeProvider defaultTheme="system" storageKey="fleetflow-theme">
-      <Router>
-        <Routes>
-          {/* Public Routes */}
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/login" element={<Navigate to="/" replace />} />
-          <Route path="/register" element={<Navigate to="/" replace />} />
+      <AuthProvider>
+        <Router>
+          <Routes>
+            {/* Public Routes */}
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/login" element={<Navigate to="/" replace />} />
+            <Route path="/register" element={<Navigate to="/" replace />} />
 
-          {/* Protected Routes Wrapper */}
-          <Route element={<ProtectedRoute />}>
-            <Route element={<AppLayout />}>
-              <Route path="/dashboard" element={<DashboardPage />} />
-              <Route path="/vehicles" element={<VehicleRegistryPage />} />
-              <Route path="/trips" element={<TripDispatcherPage />} />
-              <Route path="/maintenance" element={<LazyPage><MaintenancePage /></LazyPage>} />
-              <Route path="/expenses" element={<LazyPage><ExpensesPage /></LazyPage>} />
-              <Route path="/drivers" element={<LazyPage><DriversPage /></LazyPage>} />
-              <Route path="/analytics" element={<LazyPage><AnalyticsPage /></LazyPage>} />
-              <Route path="/carbon" element={<LazyPage><CarbonDashboardPage /></LazyPage>} />
-              <Route path="/route-optimization" element={<LazyPage><RouteOptimizationPage /></LazyPage>} />
-              <Route path="/live-tracking" element={<LazyPage><LiveTrackingPage /></LazyPage>} />
+            {/* Protected Routes Wrapper */}
+            <Route element={<ProtectedRoute />}>
+              <Route element={<AppLayout />}>
+                <Route path="/dashboard" element={<DashboardPage />} />
+                <Route path="/vehicles" element={<VehicleRegistryPage />} />
+                <Route path="/trips" element={<TripDispatcherPage />} />
+                <Route path="/maintenance" element={<LazyPage><MaintenancePage /></LazyPage>} />
+                <Route path="/expenses" element={<LazyPage><ExpensesPage /></LazyPage>} />
+                <Route path="/drivers" element={<LazyPage><DriversPage /></LazyPage>} />
+                <Route path="/analytics" element={<LazyPage><AnalyticsPage /></LazyPage>} />
+                <Route path="/carbon" element={<LazyPage><CarbonDashboardPage /></LazyPage>} />
+                <Route path="/route-optimization" element={<LazyPage><RouteOptimizationPage /></LazyPage>} />
+                <Route path="/live-tracking" element={<LazyPage><LiveTrackingPage /></LazyPage>} />
+              </Route>
             </Route>
-          </Route>
 
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </Router>
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </Router>
+      </AuthProvider>
     </ThemeProvider>
   );
 }

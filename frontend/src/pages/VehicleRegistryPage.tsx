@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
@@ -8,20 +8,23 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../components/ui/dropdown-menu';
 import { motion } from 'framer-motion';
 import { MoreHorizontal } from 'lucide-react';
-
-const INITIAL_VEHICLES = [
-    { id: 1, plate: "MH00AB1234", model: "Mini", type: "Truck", capacity: "5 ton", odometer: "70,000 km", status: "Idle" },
-    { id: 2, plate: "DL01YZ5678", model: "Maxi", type: "Trailer", capacity: "15 ton", odometer: "120,500 km", status: "On Trip" },
-    { id: 3, plate: "GJ05RT9087", model: "Mini", type: "Van", capacity: "2 ton", odometer: "45,000 km", status: "Idle" },
-    { id: 4, plate: "KA09PL4321", model: "Ultra", type: "Truck", capacity: "10 ton", odometer: "98,000 km", status: "On Trip" },
-    { id: 5, plate: "TN11ZX6789", model: "Lite", type: "Van", capacity: "3 ton", odometer: "60,200 km", status: "Idle" },
-    { id: 6, plate: "RJ14MN3456", model: "Heavy", type: "Trailer", capacity: "20 ton", odometer: "150,000 km", status: "On Trip" }
-];
+import { collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc } from 'firebase/firestore';
+import { db } from '../lib/firebase';
 
 export function VehicleRegistryPage() {
-    const [vehicles, setVehicles] = useState(INITIAL_VEHICLES);
+    const [vehicles, setVehicles] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [editingId, setEditingId] = useState<number | null>(null);
+    const [editingId, setEditingId] = useState<string | null>(null);
+
+    useEffect(() => {
+        const unsubscribe = onSnapshot(collection(db, 'vehicles'), (snapshot) => {
+            const vehiclesData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            setVehicles(vehiclesData);
+            setLoading(false);
+        });
+        return () => unsubscribe();
+    }, []);
 
     // Form State
     const [plate, setPlate] = useState('');
@@ -46,11 +49,15 @@ export function VehicleRegistryPage() {
         setIsModalOpen(true);
     };
 
-    const handleDeleteVehicle = (id: number) => {
-        setVehicles(vehicles.filter(v => v.id !== id));
+    const handleDeleteVehicle = async (id: string) => {
+        try {
+            await deleteDoc(doc(db, 'vehicles', id));
+        } catch (error) {
+            console.error('Error deleting vehicle:', error);
+        }
     };
 
-    const handleSaveVehicle = (e: React.FormEvent) => {
+    const handleSaveVehicle = async (e: React.FormEvent) => {
         e.preventDefault();
 
         let newOdoStr = "0 km";
@@ -58,17 +65,18 @@ export function VehicleRegistryPage() {
             newOdoStr = `${parseInt(odometer).toLocaleString()} km`;
         }
 
-        if (editingId !== null) {
-            setVehicles(vehicles.map(v => v.id === editingId ? {
-                ...v,
-                plate, model, type, capacity: `${capacity} ton`, odometer: newOdoStr
-            } : v));
-        } else {
-            const newVehicle = {
-                id: vehicles.length > 0 ? Math.max(...vehicles.map(v => v.id)) + 1 : 1,
-                plate, model, type, capacity: `${capacity} ton`, odometer: newOdoStr, status: "Idle"
-            };
-            setVehicles([...vehicles, newVehicle]);
+        try {
+            if (editingId !== null) {
+                await updateDoc(doc(db, 'vehicles', editingId), {
+                    plate, model, type, capacity: `${capacity} ton`, odometer: newOdoStr
+                });
+            } else {
+                await addDoc(collection(db, 'vehicles'), {
+                    plate, model, type, capacity: `${capacity} ton`, odometer: newOdoStr, status: "Idle"
+                });
+            }
+        } catch (error) {
+            console.error('Error saving vehicle:', error);
         }
         setIsModalOpen(false);
     };
@@ -106,7 +114,16 @@ export function VehicleRegistryPage() {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {vehicles.map((v) => (
+                            {loading && (
+                                <TableRow>
+                                    <TableCell colSpan={8} className="text-center py-8">
+                                        <div className="flex justify-center items-center">
+                                            <div className="h-6 w-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                                        </div>
+                                    </TableCell>
+                                </TableRow>
+                            )}
+                            {!loading && vehicles.map((v) => (
                                 <TableRow key={v.id} className="border-b border-border hover:bg-muted/50 transition duration-150 group">
                                     <TableCell className="text-muted-foreground px-6 py-3">{v.id}</TableCell>
                                     <TableCell className="font-medium text-foreground px-6 py-3">{v.plate}</TableCell>
@@ -139,7 +156,7 @@ export function VehicleRegistryPage() {
                                     </TableCell>
                                 </TableRow>
                             ))}
-                            {vehicles.length === 0 && (
+                            {!loading && vehicles.length === 0 && (
                                 <TableRow>
                                     <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
                                         No vehicles registered yet.
