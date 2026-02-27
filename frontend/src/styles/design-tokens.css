@@ -1,0 +1,89 @@
+/* ── FleetFlow Dark Design Tokens ─────────────────────────── */
+/* Used exclusively by the 4 new pages (Pages 5-8) */
+
+.fleet-dark {
+  /* Base */
+  --fleet-bg: #09090b;
+  --fleet-bg-card: #18181b;
+  --fleet-bg-muted: #27272a;
+  --fleet-bg-elevated: #3f3f46;
+  --fleet-border: #27272a;
+  --fleet-border-subtle: #3f3f46;
+
+  /* Text */
+  --fleet-text: #fafafa;
+  --fleet-text-secondary: #a1a1aa;
+  --fleet-text-muted: #71717a;
+  --fleet-text-placeholder: #52525b;
+
+  /* Semantic */
+  --fleet-success: #10b981;
+  --fleet-success-bg: rgba(16, 185, 129, 0.1);
+  --fleet-warning: #f59e0b;
+  --fleet-warning-bg: rgba(245, 158, 11, 0.1);
+  --fleet-destructive: #ef4444;
+  --fleet-destructive-bg: rgba(239, 68, 68, 0.1);
+  --fleet-info: #3b82f6;
+  --fleet-info-bg: rgba(59, 130, 246, 0.1);
+  --fleet-accent: #10b981;
+  --fleet-accent-bg: rgba(16, 185, 129, 0.1);
+  --fleet-muted: #71717a;
+
+  /* Chart Palette */
+  --fleet-chart-1: #10b981;
+  --fleet-chart-2: #3b82f6;
+  --fleet-chart-3: #f59e0b;
+  --fleet-chart-4: #ef4444;
+  --fleet-chart-5: #8b5cf6;
+
+  /* Radii */
+  --fleet-radius-sm: 0.5rem;
+  --fleet-radius-md: 0.75rem;
+  --fleet-radius-lg: 1rem;
+  --fleet-radius-xl: 1.25rem;
+
+  /* Shadows */
+  --fleet-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --fleet-shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4);
+
+  /* Typography */
+  color-scheme: dark;
+  background: var(--fleet-bg);
+  color: var(--fleet-text);
+}
+
+/* ── Animations ──────────────────────────────────────────── */
+@keyframes fleet-fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fleet-slide-in-right {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
+}
+
+@keyframes fleet-slide-in-left {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(0); }
+}
+
+@keyframes fleet-shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.fleet-animate-in {
+  animation: fleet-fade-in 0.4s ease-out both;
+}
+
+.fleet-animate-stagger-1 { animation-delay: 0.05s; }
+.fleet-animate-stagger-2 { animation-delay: 0.1s; }
+.fleet-animate-stagger-3 { animation-delay: 0.15s; }
+.fleet-animate-stagger-4 { animation-delay: 0.2s; }
+
+.fleet-shimmer {
+  background: linear-gradient(90deg, var(--fleet-bg-muted) 25%, var(--fleet-bg-elevated) 50%, var(--fleet-bg-muted) 75%);
+  background-size: 200% 100%;
+  animation: fleet-shimmer 1.5s infinite;
+}
