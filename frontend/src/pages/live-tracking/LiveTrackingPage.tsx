@@ -2,12 +2,11 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
 import { Card } from '../../components/ui/card';
 import { Badge } from '../../components/ui/badge';
 import { MetricCard } from '../../components/shared/MetricCard';
 import { PageHeader } from '../../components/shared/PageHeader';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
+import { Table, TableBody, TableCell, TableRow } from '../../components/ui/table';
 import { MapPin, Navigation, Truck, Clock } from 'lucide-react';
 import type { LiveVehicle } from '../../types/carbon';
 

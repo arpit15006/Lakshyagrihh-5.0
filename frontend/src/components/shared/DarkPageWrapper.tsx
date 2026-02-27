@@ -1,5 +1,4 @@
 import { Component, type ReactNode, type ErrorInfo } from 'react';
-import '../../styles/design-tokens.css';
 
 /* ── Error Boundary ──────────────────────────────────────── */
 interface ErrorBoundaryState { hasError: boolean; error?: Error; }

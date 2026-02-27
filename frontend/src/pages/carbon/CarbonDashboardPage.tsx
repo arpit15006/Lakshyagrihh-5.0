@@ -6,7 +6,7 @@ import { Badge } from '../../components/ui/badge';
 import { MetricCard } from '../../components/shared/MetricCard';
 import { PageHeader } from '../../components/shared/PageHeader';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, Area, AreaChart } from 'recharts';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, BarChart, Bar, Line } from 'recharts';
 import { Leaf, TrendingDown, Target, TreePine, Download } from 'lucide-react';
 import type { TripEmission, VehicleEmission, EmissionTrend } from '../../types/carbon';
 

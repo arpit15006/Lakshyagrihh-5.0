@@ -1,5 +1,4 @@
 import * as React from "react"
-import { motion, AnimatePresence } from "framer-motion"
 
 export function Dialog({
     children,

@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { MetricCard } from '../../components/shared/MetricCard';
 import { PageHeader } from '../../components/shared/PageHeader';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
-import { Route, TrendingDown, Clock, DollarSign, Leaf, Navigation, CheckCircle } from 'lucide-react';
+import { Route, Clock, DollarSign, Leaf, Navigation, CheckCircle } from 'lucide-react';
 import type { RouteOptimization } from '../../types/carbon';
 
 const OPTIMIZED_ROUTES: RouteOptimization[] = [
